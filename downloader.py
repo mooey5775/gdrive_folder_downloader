@@ -44,8 +44,8 @@ if __name__ == '__main__':
     # Parse arguments
     ap = argparse.ArgumentParser()
     ap.add_argument("folder_id", help="ID of the folder to download")
-    ap.add_argument("location", default="download",
-                    help="Location to place the download on disk")
+    ap.add_argument("-l", "--location", default="download",
+                    help="location to place the download on disk")
     ap.parse_args()
 
     print("----------- Google Drive Folder Downloader -----------")

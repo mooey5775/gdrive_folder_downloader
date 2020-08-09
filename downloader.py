@@ -47,6 +47,8 @@ if __name__ == '__main__':
     ap.add_argument("folder_id", help="ID of the folder to download")
     ap.add_argument("-l", "--location", default="download",
                     help="location to place the download on disk")
+    ap.add_argument("-r", "--recursive", action="store_true",
+                    help="download folders recursively")
     args = ap.parse_args()
 
     print("----------- Google Drive Folder Downloader -----------")
@@ -81,7 +83,7 @@ if __name__ == '__main__':
 
         # Download files
         for file in tqdm(files):
-            if os.exists(curr_folder.get_file_path(file['title'])):
+            if os.path.exists(curr_folder.get_file_path(file['title'])):
                 print(f"[WARNING] File {file['title']} exists, skipping...")
                 continue
             gfile = drive.CreateFile({'id': file['id']})
@@ -89,5 +91,8 @@ if __name__ == '__main__':
                 gfile.GetContentFile(curr_folder.get_file_path(file['title']))
             except (ApiRequestError, FileNotUploadedError, FileNotDownloadableError):
                 print(f"[ERROR] Failed to download file {file['title']}")
+
+        if not args.recursive:
+            break
 
     print(f"[INFO] Completed download of {file_cnt} files, totaling {humanize.naturalsize(total_size)}")

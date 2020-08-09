@@ -41,7 +41,6 @@ class DriveFolder:
 
         return (files, folders)
 
-
 if __name__ == '__main__':
     # Parse arguments
     ap = argparse.ArgumentParser()

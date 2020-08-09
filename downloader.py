@@ -12,8 +12,8 @@ drive = None
 class DriveFolder:
     def __init__(self, folder_metadata, parent=None):
         self.id = folder_metadata['id']
-        self.path = parent.path if parent is not None else []
-        self.path.append(folder_metadata['title'])
+        self.path = parent.path if parent is not None else ()
+        self.path += (folder_metadata['title'], )
 
     @classmethod
     def from_id(cls, folder_id, root_folder):
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     ap.add_argument("folder_id", help="ID of the folder to download")
     ap.add_argument("-l", "--location", default="download",
                     help="location to place the download on disk")
-    ap.parse_args()
+    args = ap.parse_args()
 
     print("----------- Google Drive Folder Downloader -----------")
     file_cnt = 0
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     drive = GoogleDrive(gauth)
 
     # Auto-iterate through all files in the root folder.
-    to_download = [DriveFolder.from_id(ap.folder_id, ap.location)]
+    to_download = [DriveFolder.from_id(args.folder_id, args.location)]
     while to_download:
         # Fetch folder
         curr_folder = to_download.pop()

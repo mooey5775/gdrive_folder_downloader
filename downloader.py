@@ -1,11 +1,9 @@
+import argparse
 import os
 
 from pydrive.drive import GoogleDrive
 from pydrive.auth import GoogleAuth
 from tqdm import tqdm
-
-DATA_DIR = 'data'
-DRIVE_ROOT_ID = '0BzsdkU4jWx9Ba2x1NTZhdzQ5Zjg'
 
 FOLDER_MIMETYPE = 'application/vnd.google-apps.folder'
 
@@ -43,6 +41,13 @@ class DriveFolder:
 
 
 if __name__ == '__main__':
+    # Parse arguments
+    ap = argparse.ArgumentParser()
+    ap.add_argument("folder_id", help="ID of the folder to download")
+    ap.add_argument("location", default="download",
+                    help="Location to place the download on disk")
+    ap.parse_args()
+
     print("----------- Google Drive Folder Downloader -----------")
     file_cnt = 0
 
@@ -53,7 +58,7 @@ if __name__ == '__main__':
     drive = GoogleDrive(gauth)
 
     # Auto-iterate through all files in the root folder.
-    to_download = [DriveFolder.from_id(DRIVE_ROOT_ID, DATA_DIR)]
+    to_download = [DriveFolder.from_id(ap.folder_id, ap.location)]
     while to_download:
         # Fetch folder
         curr_folder = to_download.pop()
@@ -64,7 +69,10 @@ if __name__ == '__main__':
         print(f"[INFO] Entering folder {curr_folder.get_path()} with {len(files)} files to download")
 
         # Create folder and begin download
-        os.makedirs(curr_folder.get_path())
+        try:
+            os.makedirs(curr_folder.get_path())
+        except FileExistsError:
+            print("[WARNING] This folder already exists! Continuing...")
         file_cnt += len(files)
 
         for file in tqdm(files):

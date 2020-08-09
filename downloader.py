@@ -1,4 +1,5 @@
 import argparse
+import humanize
 import os
 
 from pydrive.drive import GoogleDrive
@@ -34,8 +35,8 @@ class DriveFolder:
         file_list = drive.ListFile({'q': f"'{self.id}' in parents and trashed=false"}).GetList()
 
         # Split by file/folder
-        files = [{'id': i['id'], 'name': i['title']} for i in file_list if not DriveFolder.is_folder(i)]
-        folders = [DriveFolder(i, self) for i in file_list if DriveFolder.is_folder(i)]
+        files = [file for file in file_list if not DriveFolder.is_folder(file)]
+        folders = [DriveFolder(file, self) for file in file_list if DriveFolder.is_folder(file)]
 
         return (files, folders)
 
@@ -50,6 +51,7 @@ if __name__ == '__main__':
 
     print("----------- Google Drive Folder Downloader -----------")
     file_cnt = 0
+    total_size = 0
 
     # Authenticate user
     print("[INFO] Authenticating user...")
@@ -66,7 +68,9 @@ if __name__ == '__main__':
         to_download.extend(subfolders)
 
         # Print folder metadata
-        print(f"[INFO] Entering folder {curr_folder.get_path()} with {len(files)} files to download")
+        folder_size = sum(int(file['fileSize']) for file in files if 'fileSize' in file)
+        total_size += folder_size
+        print(f"[INFO] Entering folder {curr_folder.get_path()} with {len(files)} files to download, totaling {humanize.naturalsize(folder_size)}")
 
         # Create folder and begin download
         try:
@@ -78,8 +82,8 @@ if __name__ == '__main__':
         for file in tqdm(files):
             gfile = drive.CreateFile({'id': file['id']})
             try:
-                gfile.GetContentFile(curr_folder.get_file_path(file['name']))
+                gfile.GetContentFile(curr_folder.get_file_path(file['title']))
             except:
-                print(f"[ERROR] Failed to download file {file['name']}")
+                print(f"[ERROR] Failed to download file {file['title']}")
 
-    print(f"[INFO] Completed download of {file_cnt} files")
+    print(f"[INFO] Completed download of {file_cnt} files, totaling {humanize.naturalsize(total_size)}")

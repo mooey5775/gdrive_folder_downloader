@@ -79,7 +79,11 @@ if __name__ == '__main__':
             print("[WARNING] This folder already exists! Continuing...")
         file_cnt += len(files)
 
+        # Download files
         for file in tqdm(files):
+            if os.exists(curr_folder.get_file_path(file['title'])):
+                print(f"[WARNING] File {file['title']} exists, skipping...")
+                continue
             gfile = drive.CreateFile({'id': file['id']})
             try:
                 gfile.GetContentFile(curr_folder.get_file_path(file['title']))

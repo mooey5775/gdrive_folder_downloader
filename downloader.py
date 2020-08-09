@@ -4,6 +4,7 @@ import os
 
 from pydrive.drive import GoogleDrive
 from pydrive.auth import GoogleAuth
+from pydrive.files import ApiRequestError, FileNotUploadedError, FileNotDownloadableError
 from tqdm import tqdm
 
 FOLDER_MIMETYPE = 'application/vnd.google-apps.folder'
@@ -83,7 +84,7 @@ if __name__ == '__main__':
             gfile = drive.CreateFile({'id': file['id']})
             try:
                 gfile.GetContentFile(curr_folder.get_file_path(file['title']))
-            except:
+            except (ApiRequestError, FileNotUploadedError, FileNotDownloadableError):
                 print(f"[ERROR] Failed to download file {file['title']}")
 
     print(f"[INFO] Completed download of {file_cnt} files, totaling {humanize.naturalsize(total_size)}")

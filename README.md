@@ -8,8 +8,8 @@ Uses PyDrive to handle Google Drive communication.
 Files
 -----
 
-`downloader.py`: main downloader script
-`requirements.txt`: Python requirements
+ - `downloader.py`: main downloader script
+ - `requirements.txt`: Python requirements
 
 Usage
 -----
